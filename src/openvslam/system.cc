@@ -356,6 +356,16 @@ Mat44_t system::feed_RGBD_frame(const cv::Mat& rgb_img, const cv::Mat& depthmap,
     return cam_pose_cw;
 }
 
+bool system::update_pose(const Mat44_t& pose) {
+    bool status = tracker_->request_update_pose(pose);
+    if (status) {
+        // Even if state will be lost, still update the pose in map_publisher_
+        // to clearly show new camera position
+        map_publisher_->set_current_cam_pose(pose);
+    }
+    return status;
+}
+
 void system::pause_tracker() {
     tracker_->request_pause();
 }

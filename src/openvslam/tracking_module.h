@@ -80,6 +80,10 @@ public:
     //! (Note: RGB and Depth images must be aligned)
     Mat44_t track_RGBD_image(const cv::Mat& img, const cv::Mat& depthmap, const double timestamp, const cv::Mat& mask = cv::Mat{});
 
+    //! Request to update the pose to a given one.
+    //! Return failure in case if previous request was not finished yet.
+    bool request_update_pose(const Mat44_t& pose);
+
     //-----------------------------------------
     // management for reset process
 
@@ -116,6 +120,10 @@ public:
     bool relocalize_with_navdata_ = false;
 
     double time_to_relocalize_ = 5.0;
+
+    //! closest keyframes thresholds (by distance and angle) to relocalize with when updating by pose
+    double reloc_distance_threshold_ = 0.2;
+    double reloc_angle_threshold_ = 0.45;
 
     //-----------------------------------------
     // variables
@@ -269,6 +277,19 @@ protected:
 
     //! Pause of the tracking module is requested or not
     bool pause_is_requested_ = false;
+
+    //! Mutex for update pose request into given position
+    mutable std::mutex mtx_update_pose_request_;
+    //! Update into a given position is requested or not
+    bool update_pose_is_requested();
+    //! Get requested for relocalization pose
+    Mat44_t& get_requested_pose();
+    //! Finish update request. Returns true in case of request was made.
+    void finish_update_pose_request();
+    //! Indicator of update pose request
+    bool update_pose_is_requested_ = false;
+    //! Requested pose to update
+    Mat44_t requested_pose_;
 };
 
 } // namespace openvslam

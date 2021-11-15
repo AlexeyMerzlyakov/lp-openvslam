@@ -107,6 +107,13 @@ public:
     void abort_loop_BA();
 
     //-----------------------------------------
+    // pose initializing/updating
+
+    //! Request to update the pose to a given one.
+    //! Return failure in case if previous request was not finished.
+    bool update_pose(const Mat44_t& pose);
+
+    //-----------------------------------------
     // data feeding methods
 
     //! Feed a monocular frame to SLAM system
